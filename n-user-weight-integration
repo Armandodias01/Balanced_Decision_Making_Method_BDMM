@@ -1,0 +1,80 @@
+import pandas as pd
+import numpy as np
+
+# Get the number of decision-makers from the user
+num_decision_makers = int(input("Enter the number of decision-makers: "))
+
+# Get the number of criteria from the user
+num_criteria = int(input("Enter the number of criteria: "))
+
+# Get the names of the criteria from the user
+criteria_names = []
+for i in range(num_criteria):
+    criteria_name = input(f"Enter the name for criteria {i+1}: ")
+    criteria_names.append(criteria_name)
+
+# Get the weights for each decision-maker and criterion from the user
+weights_data = {'Criteria': criteria_names}
+for i in range(num_decision_makers):
+    decision_maker_name = f'P{i+1}'  # You can modify this to get names from the user
+    weights_data[decision_maker_name] = []
+    print(f"Enter weights for {decision_maker_name}:")
+    for j in range(num_criteria):
+        weight = float(input(f"  Enter weight for {criteria_names[j]}: "))
+        weights_data[decision_maker_name].append(weight)
+
+# Convert to DataFrame
+df_weights = pd.DataFrame(weights_data)
+
+# Display the entered weights
+print("\nEntered Weights:")
+print(df_weights)
+
+# Now you can proceed with the calculations from the previous cells using this df_weights DataFrame
+
+# Step 1: Calculate the equal weights (mean of the total number of criteria)
+n = len(df_weights['Criteria'])
+equal_weights = [1 / n] * n
+df_weights['Equal_Weights'] = equal_weights
+
+# Step 2: Calculate the distance of each weight vector to the equal weights vector
+decision_maker_distances = {}
+total_distance = 0
+for i in range(num_decision_makers):
+    decision_maker_name = f'P{i+1}' # Assuming decision maker names are P1, P2, ...
+    df_weights[f'{decision_maker_name}_Diff'] = (df_weights[decision_maker_name] - df_weights['Equal_Weights'])**2
+    distance = np.sqrt(df_weights[f'{decision_maker_name}_Diff'].sum())
+    decision_maker_distances[decision_maker_name] = distance
+    total_distance += distance
+
+# Normalize the distances to generate adjusted weights
+normalized_weights = {}
+for decision_maker_name, distance in decision_maker_distances.items():
+    normalized_weights[f'Normalized_{decision_maker_name}'] = distance / total_distance
+
+# Final results for distances and normalized weights
+results_data = {'Metric': [], 'Value': []}
+for decision_maker_name, distance in decision_maker_distances.items():
+    results_data['Metric'].append(f'{decision_maker_name}_Distance')
+    results_data['Value'].append(distance)
+for normalized_name, normalized_weight in normalized_weights.items():
+    results_data['Metric'].append(normalized_name)
+    results_data['Value'].append(normalized_weight)
+
+results_df = pd.DataFrame(results_data)
+print("\nDistance and Normalized Weights:")
+print(results_df)
+
+# Calculate combined weights using the normalized weights
+# This part assumes you want to combine all decision makers' weights
+# using their normalized distances as weights for the combination.
+# You might need to adjust this logic based on how you want to combine the weights.
+
+df_weights['W_comb'] = 0
+for i in range(num_decision_makers):
+    decision_maker_name = f'P{i+1}'
+    normalized_name = f'Normalized_P{i+1}'
+    df_weights['W_comb'] += normalized_weights[normalized_name] * df_weights[decision_maker_name]
+
+print("\nCombined Weights:")
+print(df_weights[['Criteria', 'W_comb']])
