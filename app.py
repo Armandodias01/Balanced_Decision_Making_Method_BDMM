@@ -71,7 +71,11 @@ $$
 Onde:
 $$
 - \(w_{kl}\) é o peso do critério l do decisor k
+$$
+$$
 - \(w_{eq,l} = 1/m\)
+$$
+$$
 - m = número de critérios
 $$
 """)
