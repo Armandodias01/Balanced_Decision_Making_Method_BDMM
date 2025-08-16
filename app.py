@@ -69,9 +69,11 @@ d_k = \\sqrt{\\sum_{l=1}^{m} (w_{kl} - w_{eq,l})^2}
 $$
 
 Onde:
+$$
 - \(w_{kl}\) é o peso do critério l do decisor k
 - \(w_{eq,l} = 1/m\)
 - m = número de critérios
+$$
 """)
 
 distancias_decisores = {}
