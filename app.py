@@ -136,6 +136,12 @@ $$
 - $\mu$: média dos pesos do critério entre os decisores.  
 - $\sigma_{max}$: desvio-padrão máximo possível para o critério dado o valor médio.  
 
+**Interpretação do CI em faixas qualitativas:**  
+- CI ≥ 0.85 → Alto Consenso  
+- 0.70 ≤ CI < 0.85 → Moderado  
+- 0.50 ≤ CI < 0.70 → Baixo  
+- CI < 0.50 → Dissenso  
+
 Interpretação:  
 - CI próximo de 1 → alto consenso entre decisores  
 - CI próximo de 0 → alto dissenso entre decisores
