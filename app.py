@@ -135,6 +135,14 @@ $$
 - $\sigma_{obs}$ = desvio-padrão dos pesos do critério entre decisores  
 - $\mu$ = média dos pesos do critério  
 - CI próximo de 1 indica alto consenso, próximo de 0 indica dissenso
+
+**Interpretação do CI:**
+
+- $CI \\ge 0.85$: Alto consenso  
+- $0.70 \\le CI < 0.85$: Moderado  
+- $0.50 \\le CI < 0.70$: Baixo  
+- $CI < 0.50$: Dissenso
+
 """)
 
 colunas = [f'D{i+1}' for i in range(num_decisores)]
