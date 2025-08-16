@@ -126,23 +126,19 @@ st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
 # === Etapa 6: Índice de Consenso (CI) ===
 st.header("6. Índice de Consenso (CI)")
 st.markdown(r"""
-O Índice de Consenso mede o grau de concordância entre os decisores para cada critério:
+O Índice de Consenso (CI) avalia o grau de concordância entre os decisores para cada critério, variando de 0 a 1:
 
 $$
 CI = 1 - \frac{\sigma_{obs}}{\sigma_{max}}, \quad \sigma_{max} = \sqrt{\mu \cdot (1-\mu)}
 $$
 
-- $\sigma_{obs}$ = desvio-padrão dos pesos do critério entre decisores  
-- $\mu$ = média dos pesos do critério  
-- CI próximo de 1 indica alto consenso, próximo de 0 indica dissenso
+- $\sigma_{obs}$: desvio-padrão dos pesos do critério entre os decisores, refletindo a dispersão das opiniões.  
+- $\mu$: média dos pesos do critério entre os decisores.  
+- $\sigma_{max}$: desvio-padrão máximo possível para o critério dado o valor médio.  
 
-**Interpretação do CI:**
-
-- $CI \\ge 0.85$: Alto consenso  
-- $0.70 \\le CI < 0.85$: Moderado  
-- $0.50 \\le CI < 0.70$: Baixo  
-- $CI < 0.50$: Dissenso
-
+Interpretação:  
+- CI próximo de 1 → alto consenso entre decisores  
+- CI próximo de 0 → alto dissenso entre decisores
 """)
 
 colunas = [f'D{i+1}' for i in range(num_decisores)]
