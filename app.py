@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
-st.title("BDMM - Medida de Consenso via Desvio-Padrão")
+st.title("BDMM - Balanced Decision-Making Method")
 
 # === Entrada de dados ===
 num_decisores = st.number_input("Número de decisores:", min_value=1, value=2, step=1)
@@ -42,20 +43,55 @@ for i in range(num_decisores):
 st.write("### Pesos normalizados")
 st.dataframe(df_pesos)
 
-# === Cálculo do desvio-padrão por critério ===
+# === Passo 1: Pesos iguais ===
+n = len(df_pesos['Critério'])
+df_pesos['Pesos_Iguais'] = [1/n] * n
+
+# === Passo 2: Distâncias Euclidianas ===
+distancias_decisores = {}
+distancia_total = 0
+for i in range(num_decisores):
+    decisor = f'D{i+1}'
+    df_pesos[f'{decisor}_Diff'] = (df_pesos[decisor] - df_pesos['Pesos_Iguais'])**2
+    distancia = np.sqrt(df_pesos[f'{decisor}_Diff'].sum())
+    distancias_decisores[decisor] = distancia
+    distancia_total += distancia
+
+# Normalização das distâncias
+pesos_normalizados = {f'Normalizado_{decisor}': dist/distancia_total for decisor, dist in distancias_decisores.items()}
+
+# Resultados intermediários
+resultados = {'Métrica': [], 'Valor': []}
+for decisor, dist in distancias_decisores.items():
+    resultados['Métrica'].append(f'{decisor}_Distância')
+    resultados['Valor'].append(dist)
+for nome_norm, peso_norm in pesos_normalizados.items():
+    resultados['Métrica'].append(nome_norm)
+    resultados['Valor'].append(peso_norm)
+
+df_resultados = pd.DataFrame(resultados)
+st.write("### Distâncias e Pesos Normalizados")
+st.dataframe(df_resultados)
+
+# === Passo 3: Pesos Combinados ===
+df_pesos['Peso_Combinado'] = 0
+for i in range(num_decisores):
+    decisor = f'D{i+1}'
+    nome_norm = f'Normalizado_{decisor}'
+    df_pesos['Peso_Combinado'] += pesos_normalizados[nome_norm] * df_pesos[decisor]
+
+st.write("### Pesos Combinados por Critério")
+st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
+
+# === Análise de Consenso via Desvio-Padrão ===
 colunas_decisores = [f'D{i+1}' for i in range(num_decisores)]
 desvio = df_pesos[colunas_decisores].std(axis=1, ddof=1)
-
-# Média por critério
 media = df_pesos[colunas_decisores].mean(axis=1)
-
-# Desvio máximo teórico e dispersão relativa
 desvio_max = np.sqrt(media * (1 - media))
 desvio_max_seguro = desvio_max.replace(0, np.nan)
 disp_relativa = (desvio / desvio_max_seguro).clip(upper=1)
 CI = 1 - disp_relativa
 
-# Classificação do nível de consenso
 def classificar_ci(x):
     if x >= 0.85: return 'Alto consenso'
     if x >= 0.70: return 'Moderado'
@@ -70,10 +106,30 @@ df_consenso = pd.DataFrame({
 })
 df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (CI)'].apply(classificar_ci)
 
-st.write("### Resultado do Consenso por Critério")
+st.write("### Análise de Consenso por Critério")
 st.dataframe(df_consenso)
 
-# Mostrar legenda das faixas
+# === Visualização Gráfica dos Pesos Combinados ===
+st.write("### Gráfico de Pesos Combinados")
+fig, ax = plt.subplots(figsize=(8,5))
+ax.bar(df_pesos['Critério'], df_pesos['Peso_Combinado'], color='steelblue')
+ax.set_ylabel("Valor do Peso Combinado")
+ax.set_title("Pesos Combinados Finais por Critério (BDMM)")
+st.pyplot(fig)
+
+# === Legenda das faixas de consenso ===
+st.markdown("""
+## O que é o consenso?
+
+O **consenso** em processos de decisão multicritério é a **medida do quanto os decisores concordam entre si** ao atribuir pesos ou avaliar alternativas.  
+
+- **Alto consenso:** todos os decisores têm opiniões muito próximas, indicando forte acordo.  
+- **Moderado:** existe concordância, mas com pequenas divergências.  
+- **Baixo ou Dissenso:** opiniões muito divergentes, indicando que os decisores não compartilham a mesma visão sobre a importância dos critérios.  
+
+O desvio-padrão dos pesos atribuídos é usado para quantificar essa dispersão: quanto menor o desvio-padrão, maior o consenso.
+""")
+
 st.markdown("""
 **Interpretação do índice de consenso (CI):**
 
@@ -82,3 +138,4 @@ st.markdown("""
 - **0,50 ≤ CI < 0,70:** Baixo  
 - **CI < 0,50:** Dissenso
 """)
+
