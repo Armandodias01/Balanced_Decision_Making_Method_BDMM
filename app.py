@@ -87,7 +87,7 @@ st.markdown(r"""
 As distâncias são normalizadas para permitir comparabilidade entre decisores:
 
 $$
-Normalized_Distance_for_w_{k} = \frac{d_k}{\sum_{k=1}^{m} d_k}
+Normalized\Distance\for\w_{k} = \frac{d_k}{\sum_{k=1}^{m} d_k}
 $$
 
 O **peso ajustado** é dado por:
