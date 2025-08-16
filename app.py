@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.title("BDMM - Balanced Decision-Making Method")
+st.title("BDMM - Balanced Decision-Making Method com Índice de Consenso")
 
 # === Entrada de dados ===
 num_decisores = st.number_input("Número de decisores:", min_value=1, value=2, step=1)
@@ -83,22 +83,26 @@ for i in range(num_decisores):
 st.write("### Pesos Combinados por Critério")
 st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
 
-# === Cálculo do desvio-padrão e índice de consenso (interno) ===
+# === Análise de Consenso via Desvio-Padrão ===
 colunas_decisores = [f'D{i+1}' for i in range(num_decisores)]
 desvio = df_pesos[colunas_decisores].std(axis=1, ddof=1)
 media = df_pesos[colunas_decisores].mean(axis=1)
+
+# Desvio máximo teórico (para normalização)
 desvio_max = np.sqrt(media * (1 - media))
 desvio_max_seguro = desvio_max.replace(0, np.nan)
+
+# Dispersão relativa e cálculo do Índice de Consenso (CI)
 disp_relativa = (desvio / desvio_max_seguro).clip(upper=1)
 CI = 1 - disp_relativa
 
+# Função para classificar nível de consenso
 def classificar_ci(x):
     if x >= 0.85: return 'Alto consenso'
     if x >= 0.70: return 'Moderado'
     if x >= 0.50: return 'Baixo'
     return 'Dissenso'
 
-# Não exibimos a tabela de CI, apenas mantemos cálculo interno
 df_consenso = pd.DataFrame({
     'Critério': df_pesos['Critério'],
     'Média dos Pesos': media,
@@ -106,6 +110,9 @@ df_consenso = pd.DataFrame({
     'Índice de Consenso (CI)': CI
 })
 df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (CI)'].apply(classificar_ci)
+
+st.write("### Índice de Consenso por Critério")
+st.dataframe(df_consenso)
 
 # === Visualização Gráfica dos Pesos Combinados ===
 st.write("### Gráfico de Pesos Combinados")
@@ -115,22 +122,27 @@ ax.set_ylabel("Valor do Peso Combinado")
 ax.set_title("Pesos Combinados Finais por Critério (BDMM)")
 st.pyplot(fig)
 
-# === Faixas de consenso e explicação conceitual ===
+# === Explicação conceitual do índice de consenso ===
 st.markdown("""
-**Interpretação do índice de consenso (CI):**
+## O que é o Índice de Consenso (CI)?
 
-- **CI ≥ 0,85:** Alto consenso  
-- **0,70 ≤ CI < 0,85:** Moderado  
-- **0,50 ≤ CI < 0,70:** Baixo  
-- **CI < 0,50:** Dissenso
+O **Índice de Consenso (CI)** é uma medida do **grau de concordância entre decisores** na atribuição de pesos aos critérios.  
 
-## O que é o consenso?
+Ele é calculado pela fórmula:
 
-O **consenso** em processos de decisão multicritério é a **medida do quanto os decisores concordam entre si** ao atribuir pesos ou avaliar alternativas.  
+\[
+\text{CI} = 1 - \frac{\text{desvio-padrão observado dos pesos}}{\text{desvio máximo teórico}}
+\]
 
-- **Alto consenso:** todos os decisores têm opiniões muito próximas, indicando forte acordo.  
-- **Moderado:** existe concordância, mas com pequenas divergências.  
-- **Baixo ou Dissenso:** opiniões muito divergentes, indicando que os decisores não compartilham a mesma visão sobre a importância dos critérios.  
+- **desvio-padrão observado:** medida de dispersão dos pesos atribuídos pelos decisores para cada critério  
+- **desvio máximo teórico:** valor máximo que o desvio-padrão pode atingir para a média observada, dado por \(\sqrt{\mu (1-\mu)}\), onde \(\mu\) é a média dos pesos atribuídos
 
-O desvio-padrão dos pesos atribuídos é usado para quantificar essa dispersão: quanto menor o desvio-padrão, maior o consenso.
+**Interpretação do CI:**
+
+- CI ≥ 0,85 → Alto consenso  
+- 0,70 ≤ CI < 0,85 → Moderado  
+- 0,50 ≤ CI < 0,70 → Baixo  
+- CI < 0,50 → Dissenso
+
+Um CI próximo de 1 indica que os decisores têm opiniões muito próximas, enquanto CI próximo de 0 indica divergência significativa entre eles.
 """)
