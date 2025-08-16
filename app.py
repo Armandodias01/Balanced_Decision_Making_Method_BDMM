@@ -83,7 +83,7 @@ for i in range(num_decisores):
 st.write("### Pesos Combinados por Critério")
 st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
 
-# === Análise de Consenso via Desvio-Padrão ===
+# === Cálculo do desvio-padrão e índice de consenso (interno) ===
 colunas_decisores = [f'D{i+1}' for i in range(num_decisores)]
 desvio = df_pesos[colunas_decisores].std(axis=1, ddof=1)
 media = df_pesos[colunas_decisores].mean(axis=1)
@@ -98,6 +98,7 @@ def classificar_ci(x):
     if x >= 0.50: return 'Baixo'
     return 'Dissenso'
 
+# Não exibimos a tabela de CI, apenas mantemos cálculo interno
 df_consenso = pd.DataFrame({
     'Critério': df_pesos['Critério'],
     'Média dos Pesos': media,
@@ -105,9 +106,6 @@ df_consenso = pd.DataFrame({
     'Índice de Consenso (CI)': CI
 })
 df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (CI)'].apply(classificar_ci)
-
-st.write("### Análise de Consenso por Critério")
-st.dataframe(df_consenso)
 
 # === Visualização Gráfica dos Pesos Combinados ===
 st.write("### Gráfico de Pesos Combinados")
@@ -117,8 +115,15 @@ ax.set_ylabel("Valor do Peso Combinado")
 ax.set_title("Pesos Combinados Finais por Critério (BDMM)")
 st.pyplot(fig)
 
-# === Legenda das faixas de consenso ===
+# === Faixas de consenso e explicação conceitual ===
 st.markdown("""
+**Interpretação do índice de consenso (CI):**
+
+- **CI ≥ 0,85:** Alto consenso  
+- **0,70 ≤ CI < 0,85:** Moderado  
+- **0,50 ≤ CI < 0,70:** Baixo  
+- **CI < 0,50:** Dissenso
+
 ## O que é o consenso?
 
 O **consenso** em processos de decisão multicritério é a **medida do quanto os decisores concordam entre si** ao atribuir pesos ou avaliar alternativas.  
@@ -129,13 +134,3 @@ O **consenso** em processos de decisão multicritério é a **medida do quanto o
 
 O desvio-padrão dos pesos atribuídos é usado para quantificar essa dispersão: quanto menor o desvio-padrão, maior o consenso.
 """)
-
-st.markdown("""
-**Interpretação do índice de consenso (CI):**
-
-- **CI ≥ 0,85:** Alto consenso  
-- **0,70 ≤ CI < 0,85:** Moderado  
-- **0,50 ≤ CI < 0,70:** Baixo  
-- **CI < 0,50:** Dissenso
-""")
-
