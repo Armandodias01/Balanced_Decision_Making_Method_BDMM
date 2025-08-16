@@ -3,6 +3,37 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+# === Explicação conceitual do índice de consenso ===
+st.markdown("""
+## O que é o Índice de Consenso (CI)?
+
+O **Índice de Consenso (CI)** mede o **grau de concordância entre decisores** na atribuição de pesos aos critérios.
+
+Ele é calculado pela fórmula:
+
+$$
+CI = 1 - \frac{\sigma_{obs}}{\sigma_{max}}
+$$
+
+- \( \sigma_{obs} \) = desvio-padrão observado dos pesos atribuídos pelos decisores para cada critério  
+- \( \sigma_{max} \) = desvio máximo teórico para a média observada, dado por:
+
+$$
+\sigma_{max} = \sqrt{\mu (1 - \mu)}
+$$
+
+onde \( \mu \) é a média dos pesos atribuídos pelos decisores.
+
+**Interpretação do CI:**
+
+- \( CI \ge 0.85 \) → Alto consenso  
+- \( 0.70 \le CI < 0.85 \) → Moderado  
+- \( 0.50 \le CI < 0.70 \) → Baixo  
+- \( CI < 0.50 \) → Dissenso
+
+Um CI próximo de 1 indica forte concordância entre os decisores, enquanto valores próximos de 0 indicam grande divergência.
+""")
+
 st.title("BDMM - Balanced Decision-Making Method com Índice de Consenso")
 
 # === Entrada de dados ===
@@ -121,28 +152,3 @@ ax.bar(df_pesos['Critério'], df_pesos['Peso_Combinado'], color='steelblue')
 ax.set_ylabel("Valor do Peso Combinado")
 ax.set_title("Pesos Combinados Finais por Critério (BDMM)")
 st.pyplot(fig)
-
-# === Explicação conceitual do índice de consenso ===
-st.markdown("""
-## O que é o Índice de Consenso (CI)?
-
-O **Índice de Consenso (CI)** é uma medida do **grau de concordância entre decisores** na atribuição de pesos aos critérios.  
-
-Ele é calculado pela fórmula:
-
-\[
-\text{CI} = 1 - \frac{\text{desvio-padrão observado dos pesos}}{\text{desvio máximo teórico}}
-\]
-
-- **desvio-padrão observado:** medida de dispersão dos pesos atribuídos pelos decisores para cada critério  
-- **desvio máximo teórico:** valor máximo que o desvio-padrão pode atingir para a média observada, dado por \(\sqrt{\mu (1-\mu)}\), onde \(\mu\) é a média dos pesos atribuídos
-
-**Interpretação do CI:**
-
-- CI ≥ 0,85 → Alto consenso  
-- 0,70 ≤ CI < 0,85 → Moderado  
-- 0,50 ≤ CI < 0,70 → Baixo  
-- CI < 0,50 → Dissenso
-
-Um CI próximo de 1 indica que os decisores têm opiniões muito próximas, enquanto CI próximo de 0 indica divergência significativa entre eles.
-""")
