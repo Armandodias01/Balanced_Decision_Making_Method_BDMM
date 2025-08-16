@@ -66,12 +66,12 @@ st.markdown(r"""
 A distância Euclidiana mede o quanto o vetor de pesos de cada decisor se afasta do vetor de pesos iguais:
 
 $$
-d_k = \sqrt{\sum_{l=1}^{m} (w_{kl} - w_{eq,l})^2}
+d_k = \sqrt{\sum_{l=1}^{m} (w_{kl} - w_{eql})^2}
 $$
 
 Onde:
 - $w_{kl}$ = peso do critério $l$ pelo decisor $k$  
-- $w_{eq,l}$ = peso igual para o critério $l$  
+- $w_{eql}$ = peso igual para o critério $l$  
 - $m$ = número de critérios
 """)
 
@@ -87,7 +87,7 @@ st.markdown(r"""
 As distâncias são normalizadas para permitir comparabilidade entre decisores:
 
 $$
-d_k^{norm} = \frac{d_k}{\sum_{i=1}^{n} d_i}
+Normalized Distance for w_{k} = \frac{d_k}{\sum_{k=1}^{m} d_k}
 $$
 
 O **peso ajustado** é dado por:
