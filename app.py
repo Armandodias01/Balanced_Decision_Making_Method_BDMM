@@ -7,32 +7,34 @@ import matplotlib.pyplot as plt
 st.markdown("""
 ## O que é o Índice de Consenso (CI)?
 
-O **Índice de Consenso (CI)** mede o **grau de concordância entre decisores** na atribuição de pesos aos critérios.
+O **Índice de Consenso (CI)** mede o grau de concordância entre os decisores na atribuição de pesos aos critérios.
 
 Ele é calculado pela fórmula:
 
 $$
-CI = 1 - \frac{\sigma_{obs}}{\sigma_{max}}
+CI = 1 - \\frac{\\sigma_{obs}}{\\sigma_{max}}
 $$
 
-- \( \sigma_{obs} \) = desvio-padrão observado dos pesos atribuídos pelos decisores para cada critério  
-- \( \sigma_{max} \) = desvio máximo teórico para a média observada, dado por:
+onde:
+
+- $\\sigma_{obs}$ = desvio-padrão observado dos pesos atribuídos pelos decisores para cada critério  
+- $\\sigma_{max}$ = desvio máximo teórico, dado por:
 
 $$
-\sigma_{max} = \sqrt{\mu (1 - \mu)}
+\\sigma_{max} = \\sqrt{\\mu \\cdot (1 - \\mu)}
 $$
 
-onde \( \mu \) é a média dos pesos atribuídos pelos decisores.
+com $\\mu$ sendo a média dos pesos atribuídos pelos decisores.
 
 **Interpretação do CI:**
 
-- \( CI \ge 0.85 \) → Alto consenso  
-- \( 0.70 \le CI < 0.85 \) → Moderado  
-- \( 0.50 \le CI < 0.70 \) → Baixo  
-- \( CI < 0.50 \) → Dissenso
+- $CI \\ge 0.85$ → Alto consenso  
+- $0.70 \\le CI < 0.85$ → Moderado  
+- $0.50 \\le CI < 0.70$ → Baixo  
+- $CI < 0.50$ → Dissenso
 
-Um CI próximo de 1 indica forte concordância entre os decisores, enquanto valores próximos de 0 indicam grande divergência.
-""")
+Um CI próximo de 1 indica que os decisores têm opiniões muito próximas, enquanto valores próximos de 0 indicam divergência significativa.
+""", unsafe_allow_html=True)
 
 st.title("BDMM - Balanced Decision-Making Method com Índice de Consenso")
 
