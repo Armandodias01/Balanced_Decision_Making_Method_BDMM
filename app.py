@@ -93,7 +93,7 @@ $$
 O **peso ajustado** é dado por:
 
 $$
-w_k^{adj} = 1 - d_k^{norm}
+Adjused\,Weight\,for = 1 - Normalized\,Distance\,for\,w_{k}
 $$
 
 Decisores mais próximos do vetor igual recebem maior peso ajustado.
@@ -111,7 +111,7 @@ st.markdown(r"""
 O vetor combinado é a média ponderada dos vetores de cada decisor usando os pesos ajustados:
 
 $$
-W_{comb} = \sum_{k=1}^{n} (w_k^{adj} \cdot W_k)
+W_{\text{comb}} = \sum_{l=1}^{m} \left( \left( 1 - \frac{d_k}{\sum_{k=1}^{n} d_k} \right) \cdot w_{kl} \right)
 $$
 """)
 
