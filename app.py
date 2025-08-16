@@ -6,8 +6,15 @@ import matplotlib.pyplot as plt
 st.title("Balanced Decision-Making Method (BDMM) com Índice de Consenso")
 
 st.markdown("""
-Este aplicativo implementa o **Método de Decisão Balanceada (BDMM)**, que combina pesos de múltiplos decisores para gerar uma ponderação final para cada critério.  
-Também calcula o **Índice de Consenso (CI)**, que mede o quanto os decisores concordam entre si.
+O **BDMM (Balanced Decision-Making Method)** combina os pesos de múltiplos decisores com base na distância de seus vetores de pesos individuais em relação a um **vetor de pesos iguais**, garantindo que nenhum critério seja priorizado inicialmente.
+
+As etapas principais são:
+
+1. Calcular a distância Euclidiana de cada vetor de pesos individual em relação ao vetor de pesos iguais.
+2. Normalizar as distâncias para obter comparabilidade.
+3. Ajustar os pesos com base na proximidade ao vetor igual.
+4. Combinar os vetores individuais ponderados pelos pesos ajustados.
+5. Avaliar o **índice de consenso (CI)** para medir concordância entre decisores.
 """)
 
 # === Etapa 1: Entrada de dados ===
@@ -15,7 +22,7 @@ st.header("1. Entrada de Dados")
 num_decisores = st.number_input("Número de decisores:", min_value=1, value=2, step=1)
 num_criterios = st.number_input("Número de critérios:", min_value=1, value=3, step=1)
 
-st.markdown("Defina os nomes dos critérios e os pesos atribuídos por cada decisor (de 0 a 1, somando 1 para cada decisor).")
+st.markdown("Defina os nomes dos critérios e os pesos atribuídos por cada decisor (de 0 a 1, cada decisor deve somar 1).")
 nomes_criterios = []
 for i in range(num_criterios):
     criterio = st.text_input(f"Nome do critério {i+1}:", value=f"C{i+1}")
@@ -36,7 +43,7 @@ for i in range(num_decisores):
 
 df_pesos = pd.DataFrame(dados_pesos)
 
-# Normalização automática dos pesos caso a soma não seja 1
+# Normalização automática
 for i in range(num_decisores):
     decisor = f'D{i+1}'
     soma = df_pesos[decisor].sum()
@@ -46,17 +53,25 @@ for i in range(num_decisores):
 st.write("### Pesos normalizados por decisor")
 st.dataframe(df_pesos)
 
-# === Etapa 2: Pesos iguais ===
-st.header("2. Definição dos Pesos Iguais")
+# === Etapa 2: Vetor de pesos iguais ===
+st.header("2. Vetor de Pesos Iguais")
 n = len(df_pesos['Critério'])
 df_pesos['Pesos_Iguais'] = [1/n] * n
-st.markdown(f"Aqui definimos pesos iguais para todos os critérios: {1/n:.3f} para cada um.")
+st.markdown(f"O vetor de pesos iguais é definido como 1/{n} para cada critério, garantindo neutralidade inicial.")
 
-# === Etapa 3: Distâncias Euclidianas ===
-st.header("3. Cálculo das Distâncias Euclidianas")
+# === Etapa 3: Distância Euclidiana ===
+st.header("3. Distância Euclidiana de cada decisor")
 st.markdown("""
-Calculamos a **distância Euclidiana** de cada vetor de pesos de decisor em relação ao vetor de pesos iguais.  
-Isso nos mostra o quanto cada decisor se afasta de uma ponderação "balanceada".
+A distância Euclidiana de cada vetor de pesos individual Wk em relação ao vetor de pesos iguais Weq é calculada por:
+
+$$
+d_k = \\sqrt{\\sum_{l=1}^{m} (w_{kl} - w_{eq,l})^2}
+$$
+
+Onde:
+- \(w_{kl}\) é o peso do critério l do decisor k
+- \(w_{eq,l} = 1/m\)
+- m = número de critérios
 """)
 
 distancias_decisores = {}
@@ -68,50 +83,65 @@ for i in range(num_decisores):
     distancias_decisores[decisor] = distancia
     distancia_total += distancia
 
-# Normalização das distâncias para ponderação combinada
-pesos_normalizados = {f'Normalizado_{decisor}': dist/distancia_total for decisor, dist in distancias_decisores.items()}
-
-st.write("### Distâncias e pesos normalizados")
-df_resultados = pd.DataFrame({
-    'Métrica': [f'{dec}_Distância' for dec in distancias_decisores.keys()] + list(pesos_normalizados.keys()),
-    'Valor': list(distancias_decisores.values()) + list(pesos_normalizados.values())
-})
-st.dataframe(df_resultados)
-
-# === Etapa 4: Pesos Combinados ===
-st.header("4. Cálculo dos Pesos Combinados")
+# === Etapa 4: Normalização das distâncias e pesos ajustados ===
+st.header("4. Normalização das Distâncias e Ajuste dos Pesos")
 st.markdown("""
-Os **pesos combinados** são obtidos usando os pesos normalizados das distâncias como fatores de ponderação para cada decisor:
+A distância normalizada de cada decisor é calculada como:
 
 $$
-W_{combinado} = \\sum_{i=1}^{m} (w_i^{normalizado} \\cdot w_i^{decisor})
+d_k^{norm} = \\frac{d_k}{\\sum_{i=1}^{m} d_i}
 $$
 
-onde $m$ é o número de decisores.
+O **peso ajustado** de cada vetor é dado por:
+
+$$
+w_k^{adj} = 1 - d_k^{norm}
+$$
+
+Vetores mais próximos do vetor igual recebem maior peso ajustado.
+""")
+
+pesos_normalizados = {f'Normalizado_{decisor}': dist/distancia_total for decisor, dist in distancias_decisores.items()}
+pesos_ajustados = {dec: 1 - norm for dec, norm in pesos_normalizados.items()}
+
+st.write("### Pesos ajustados dos decisores")
+df_pesos_ajustados = pd.DataFrame({
+    'Decisor': list(pesos_ajustados.keys()),
+    'Peso Ajustado': list(pesos_ajustados.values())
+})
+st.dataframe(df_pesos_ajustados)
+
+# === Etapa 5: Cálculo dos Pesos Combinados ===
+st.header("5. Pesos Combinados Finais")
+st.markdown("""
+O vetor combinado Wcomb é obtido como a média ponderada de todos os vetores de decisores usando os pesos ajustados:
+
+$$
+W_{comb} = \\sum_{k=1}^{m} (w_k^{adj} \\cdot W_k)
+$$
 """)
 
 df_pesos['Peso_Combinado'] = 0
 for i in range(num_decisores):
     decisor = f'D{i+1}'
     nome_norm = f'Normalizado_{decisor}'
-    df_pesos['Peso_Combinado'] += pesos_normalizados[nome_norm] * df_pesos[decisor]
+    df_pesos['Peso_Combinado'] += pesos_ajustados[nome_norm] * df_pesos[decisor]
 
-st.write("### Pesos Combinados por Critério")
+st.write("### Vetor de Pesos Combinados")
 st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
 
-# === Etapa 5: Índice de Consenso ===
-st.header("5. Índice de Consenso (CI)")
+# === Etapa 6: Índice de Consenso ===
+st.header("6. Índice de Consenso (CI)")
 st.markdown("""
-O **Índice de Consenso** avalia o quanto os decisores concordam na atribuição de pesos.  
-Ele é baseado no **desvio-padrão dos pesos** de cada critério:
+O **Índice de Consenso (CI)** mede a concordância entre decisores:
 
 $$
 CI = 1 - \\frac{\\sigma_{obs}}{\\sigma_{max}}
 $$
 
-- $\\sigma_{obs}$: desvio-padrão observado dos pesos de cada critério  
-- $\\sigma_{max} = \\sqrt{\\mu \\cdot (1 - \\mu)}$: desvio máximo teórico  
-- $\\mu$: média dos pesos atribuídos pelos decisores
+- \(\\sigma_{obs}\) = desvio-padrão dos pesos de cada critério
+- \(\\sigma_{max} = \\sqrt{\\mu (1 - \\mu)}\), onde \(\\mu\) é a média dos pesos
+- CI próximo de 1 indica alto consenso, CI próximo de 0 indica divergência.
 """)
 
 colunas_decisores = [f'D{i+1}' for i in range(num_decisores)]
@@ -138,21 +168,10 @@ df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (CI)'].appl
 st.write("### Índice de Consenso por Critério")
 st.dataframe(df_consenso)
 
-st.markdown("""
-**Interpretação do CI:**
-
-- $CI \\ge 0.85$: Alto consenso  
-- $0.70 \\le CI < 0.85$: Moderado  
-- $0.50 \\le CI < 0.70$: Baixo  
-- $CI < 0.50$: Dissenso
-
-Um CI próximo de 1 indica forte concordância entre os decisores, enquanto valores próximos de 0 indicam divergência.
-""")
-
-# === Etapa 6: Visualização dos Pesos Combinados ===
-st.header("6. Visualização Gráfica")
+# === Etapa 7: Visualização ===
+st.header("7. Visualização dos Pesos Combinados")
 fig, ax = plt.subplots(figsize=(8,5))
 ax.bar(df_pesos['Critério'], df_pesos['Peso_Combinado'], color='steelblue')
 ax.set_ylabel("Peso Combinado")
-ax.set_title("Pesos Combinados Finais por Critério (BDMM)")
+ax.set_title("Pesos Combinados Finais (BDMM)")
 st.pyplot(fig)
