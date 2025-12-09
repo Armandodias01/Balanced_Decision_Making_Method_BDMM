@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 st.title("BDMM - Balanced Decision-Making Method com Índice de Consenso")
 
 st.markdown("""
-Este aplicativo implementa o **BDMM (Balanced Decision-Making Method)**, combinando os pesos de múltiplos decisores e calculando o **Índice de Consenso (CI)** para medir a concordância entre eles.
+Este aplicativo implementa o **BDMM (Balanced Decision-Making Method)**, combinando os pesos de múltiplos decisores(as) e calculando o **Índice de Consenso (CI)** para medir a concordância entre eles(as).
 """)
 
 # === Etapa 1: Entrada de dados ===
@@ -46,7 +46,7 @@ for i in range(num_decisores):
     soma = df_pesos[decisor].sum()
     df_pesos[decisor] = df_pesos[decisor] / soma   # NORMALIZAÇÃO CORRETA
 
-st.write("### Pesos normalizados por decisor")
+st.write("### Matriz de pesos dos(as) Decisores(as)")
 st.dataframe(df_pesos)
 
 # === Etapa 2: Vetor de Pesos Iguais ===
