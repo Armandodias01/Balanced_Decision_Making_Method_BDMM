@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 st.title("BDMM - Balanced Decision-Making Method com Índice de Consenso")
 
 st.markdown("""
-Este aplicativo implementa o **BDMM (Balanced Decision-Making Method)**, combinando os pesos de múltiplos decisores(as) e calculando o **Índice de Consenso (IC)** para medir a concordância entre eles(as).
+Este aplicativo implementa o **BDMM (Balanced Decision-Making Method)**, combinando os pesos de múltiplos decisores(as) e calculando o **Índice de Consenso (IC)** para medir a concordância entre eles.
 """)
 
 # === Etapa 1: Entrada de dados ===
@@ -46,7 +46,7 @@ for i in range(num_decisores):
     soma = df_pesos[decisor].sum()
     df_pesos[decisor] = df_pesos[decisor] / soma   # NORMALIZAÇÃO CORRETA
 
-st.write("### Matriz de pesos dos(as) Decisores(as)")
+st.write("### Matriz de pesos")
 st.dataframe(df_pesos)
 
 # === Etapa 2: Vetor de Pesos Iguais ===
@@ -138,7 +138,7 @@ st.write("### Pesos Combinados Normalizados")
 st.dataframe(df_pesos[['Critério', 'Peso_Combinado']])
 
 # === Etapa 6: Índice de Consenso ===
-st.header("6. Índice de Consenso (IC)")
+st.header("6. Índice de Consenso (CI)")
 
 colunas = [f'D{i+1}' for i in range(num_decisores)]
 desvio = df_pesos[colunas].std(axis=1)
@@ -161,7 +161,7 @@ df_consenso = pd.DataFrame({
     'Índice de Consenso (CI)': CI
 })
 
-df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (IC)'].apply(classificar_ci)
+df_consenso['Nível de Consenso'] = df_consenso['Índice de Consenso (CI)'].apply(classificar_ci)
 
 st.write("### Índice de Consenso por Critério")
 st.dataframe(df_consenso)
@@ -173,3 +173,4 @@ ax.bar(df_pesos['Critério'], df_pesos['Peso_Combinado'])
 ax.set_ylabel("Peso Combinado")
 ax.set_title("Pesos Combinados Finais (BDMM)")
 st.pyplot(fig)
+
